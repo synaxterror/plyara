@@ -104,11 +104,9 @@ class ParserInterpreter:
     '''Adds accumulated elements to the current rule and resets the accumulators.'''
     if len(self.importsAccumulator) > 0:
       self.currentRule["imports"] = self.importsAccumulator
-      self.importsAccumulator = []
 
     if len(self.termAccumulator) > 0:
       self.currentRule["condition_terms"] = self.termAccumulator
-      self.termAccumulator = []
 
     if len(self.scopeAccumulator) > 0:
       self.currentRule["scopes"] = self.scopeAccumulator
