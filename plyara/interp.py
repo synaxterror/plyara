@@ -183,6 +183,7 @@ tokens = [
   'LESSTHAN',
   'GREATEREQUAL',
   'LESSEQUAL',
+  'XOR',
   'PERIOD',
   'COLON',
   'STAR',
@@ -254,6 +255,7 @@ t_GREATERTHAN = r'>'
 t_LESSTHAN = r'<'
 t_GREATEREQUAL = r'>='
 t_LESSEQUAL = r'<='
+t_XOR  = r'\^'
 t_PERIOD = r'\.'
 t_COLON = r':'
 t_STAR = r'\*'
@@ -528,6 +530,7 @@ def p_condition(p):
           | LESSTHAN
           | GREATEREQUAL
           | LESSEQUAL
+          | XOR
           | PERIOD
           | COLON
           | STAR
