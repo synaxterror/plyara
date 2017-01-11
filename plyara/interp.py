@@ -183,6 +183,8 @@ tokens = [
   'LESSTHAN',
   'GREATEREQUAL',
   'LESSEQUAL',
+  'RIGHTBITSHIFT',
+  'LEFTBITSHIFT',
   'PERIOD',
   'COLON',
   'STAR',
@@ -254,6 +256,8 @@ t_GREATERTHAN = r'>'
 t_LESSTHAN = r'<'
 t_GREATEREQUAL = r'>='
 t_LESSEQUAL = r'<='
+t_RIGHTBITSHIFT = r'>>'
+t_LEFTBITSHIFT = r'<<'
 t_PERIOD = r'\.'
 t_COLON = r':'
 t_STAR = r'\*'
@@ -308,7 +312,15 @@ def t_SECTIONCONDITION(t):
 
 def t_STRING(t):
   #r'".+?"(?<![^\\]\\")'
-  r'".*?"(?<![^\\]\\")(?<![^\\][\\]{3}")(?<![^\\][\\]{5}")'
+  # Original
+  # r'".*?"(?<![^\\]\\")(?<![^\\][\\]{3}")(?<![^\\][\\]{5}")'
+
+  # OK, but not sexy
+  # r'".*?"(?<![^\\]\\")(?<![^\\][\\]{3}")(?<![^\\][\\]{5}")(?<![^\\][\\]{7}")(?<![^\\][\\]{9}")'
+
+  # Using lookahead instead of lookbehind in order to use quantifier
+  r'(?:""|".*?(?=(?:[^\\](?:\\\\)*)")(?:[^\\](?:\\\\)*)?")'
+
   t.value = t.value
   return t
 
@@ -528,6 +540,8 @@ def p_condition(p):
           | LESSTHAN
           | GREATEREQUAL
           | LESSEQUAL
+          | RIGHTBITSHIFT
+          | LEFTBITSHIFT
           | PERIOD
           | COLON
           | STAR
