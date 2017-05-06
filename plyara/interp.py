@@ -563,7 +563,8 @@ def p_condition(p):
           | UINT32BE
           | STRINGNAME
           | STRINGNAME_ARRAY
-          | STRINGCOUNT'''
+          | STRINGCOUNT
+          | REXSTRING'''
 
   parserInterpreter.printDebugMessage('...matched a term: ' + p[1])
   parserInterpreter.addElement(ElementTypes.TERM, p[1])
