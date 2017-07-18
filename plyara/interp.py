@@ -313,7 +313,7 @@ def t_STRING(t):
   return t
 
 def t_BYTESTRING(t):
-  r'\{[\|\(\)\[\]\-\?a-fA-f0-9\s]+\}'
+  r'\{[\|\(\)\[\]\-\?a-fA-F0-9\s]+\}'
   t.value = t.value
   return t
 
