@@ -1,3 +1,4 @@
+import enum
 import sys
 
 import ply.lex as lex
@@ -7,7 +8,7 @@ import ply.yacc as yacc
 sys.dont_write_bytecode
 
 
-class ElementTypes:
+class ElementTypes(enum.Enum):
     """An enumeration of the element types emitted by the parser to the interpreter."""
 
     RULE_NAME = 1
