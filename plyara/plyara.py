@@ -1,4 +1,4 @@
-import sys
+import argparse
 
 import interp
 
@@ -16,12 +16,13 @@ class PlyaraParser:
 
 
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write('\nUsage is ' + sys.argv[0] + ' [file_to_parse].  Exiting')
-        sys.exit(1)
+    """Run main function."""
+    parser = argparse.ArgumentParser(description='Parse Yara rules into a dictionary representation.')
+    parser.add_argument('file', metavar='FILE', help='File containing YARA rules to parse.')
+    args, _ = parser.parse_known_args()
 
     p = PlyaraParser()
-    print(p.parseFromFile(sys.argv[1]))
+    print(p.parseFromFile(args.file))
 
 
 if __name__ == "__main__":
