@@ -25,20 +25,14 @@ class ElementTypes(enum.Enum):
 class ParserInterpreter:
     """Interpret the output of the parser and produce an alternative representation of Yara rules."""
 
-    rules = []
+    def __init__(self, debugging=False):
+        """Initialize the parser object."""
+        self.reset()
 
-    currentRule = {}
+        self.isPrintDebug = debugging
 
-    stringModifiersAccumulator = []
-    importsAccumulator = []
-    includesAccumulator = []
-    termAccumulator = []
-    scopeAccumulator = []
-    tagAccumulator = []
-
-    isPrintDebug = False
-
-    def reset(self, isPrintDebug=False):
+    def reset(self):
+        """Reset accumulators back to empty."""
         self.rules = []
 
         self.currentRule = {}
@@ -50,11 +44,8 @@ class ParserInterpreter:
         self.scopeAccumulator = []
         self.tagAccumulator = []
 
-        self.isPrintDebug = isPrintDebug
-
     def addElement(self, elementType, elementValue):
-        """Accepts elements from the parser and uses them to construct a representation of the Yara rule."""
-
+        """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
         if elementType == ElementTypes.RULE_NAME:
             self.currentRule['rule_name'] = elementValue
 
@@ -382,36 +373,36 @@ lexer = lex.lex(debug=False)
 
 
 def p_rules(p):
-    """rules : rules rule
-             | rule"""
+    '''rules : rules rule
+             | rule'''
 
 
 def p_rule(p):
-    """rule : imports_and_scopes RULE ID tag_section LBRACE rule_body RBRACE"""
+    '''rule : imports_and_scopes RULE ID tag_section LBRACE rule_body RBRACE'''
 
     parserInterpreter.printDebugMessage('matched rule ' + str(p[3]))
     parserInterpreter.addElement(ElementTypes.RULE_NAME, str(p[3]))
 
 
 def p_imports_and_scopes(p):
-    """imports_and_scopes : imports
+    '''imports_and_scopes : imports
                           | includes
                           | scopes
                           | imports scopes
                           | includes scopes
-                          | """
+                          | '''
 
 
 def p_imports(p):
-    """imports : imports import
+    '''imports : imports import
                | includes
-               | import"""
+               | import'''
 
 
 def p_includes(p):
-    """includes : includes include
+    '''includes : includes include
                 | imports
-                | include"""
+                | include'''
 
 
 def p_import(p):
@@ -427,18 +418,18 @@ def p_include(p):
 
 
 def p_scopes(p):
-    """scopes : scopes scope
-              | scope"""
+    '''scopes : scopes scope
+              | scope'''
 
 
 def p_tag_section(p):
-    """tag_section : COLON tags
-                   | """
+    '''tag_section : COLON tags
+                   | '''
 
 
 def p_tags(p):
-    """tags : tags tag
-            | tag"""
+    '''tags : tags tag
+            | tag'''
 
 
 def p_tag(p):
@@ -448,8 +439,8 @@ def p_tag(p):
 
 
 def p_scope(p):
-    """scope : PRIVATE
-             | GLOBAL"""
+    '''scope : PRIVATE
+             | GLOBAL'''
     parserInterpreter.printDebugMessage('matched scope identifier ' + str(p[1]))
     parserInterpreter.addElement(ElementTypes.SCOPE, p[1])
 
@@ -460,14 +451,14 @@ def p_rule_body(p):
 
 
 def p_rule_sections(p):
-    """sections : sections section
-                | section"""
+    '''sections : sections section
+                | section'''
 
 
 def p_rule_section(p):
-    """section : meta_section
+    '''section : meta_section
                | strings_section
-               | condition_section"""
+               | condition_section'''
 
 
 def p_meta_section(p):
@@ -480,22 +471,22 @@ def p_strings_section(p):
 
 
 def p_condition_section(p):
-    'condition_section : SECTIONCONDITION expression'
+    '''condition_section : SECTIONCONDITION expression'''
 
 
 # Meta elements.
 def p_meta_kvs(p):
-    """meta_kvs : meta_kvs meta_kv
-                | meta_kv"""
+    '''meta_kvs : meta_kvs meta_kv
+                | meta_kv'''
     parserInterpreter.printDebugMessage('...matched meta kvs')
 
 
 def p_meta_kv(p):
-    """meta_kv : ID EQUALS STRING
+    '''meta_kv : ID EQUALS STRING
                | ID EQUALS ID
                | ID EQUALS TRUE
                | ID EQUALS FALSE
-               | ID EQUALS NUM"""
+               | ID EQUALS NUM'''
     key = str(p[1])
     value = str(p[3])
     parserInterpreter.printDebugMessage('matched meta kv: ' + key + ' equals ' + value)
@@ -504,17 +495,17 @@ def p_meta_kv(p):
 
 # Strings elements.
 def p_strings_kvs(p):
-    """strings_kvs : strings_kvs strings_kv
-                   | strings_kv"""
+    '''strings_kvs : strings_kvs strings_kv
+                   | strings_kv'''
     parserInterpreter.printDebugMessage('...matched strings kvs')
 
 
 def p_strings_kv(p):
-    """strings_kv : STRINGNAME EQUALS STRING
+    '''strings_kv : STRINGNAME EQUALS STRING
                   | STRINGNAME EQUALS STRING string_modifiers
                   | STRINGNAME EQUALS BYTESTRING
                   | STRINGNAME EQUALS REXSTRING
-                  | STRINGNAME EQUALS REXSTRING string_modifiers"""
+                  | STRINGNAME EQUALS REXSTRING string_modifiers'''
 
     key = str(p[1])
     value = str(p[3])
@@ -523,27 +514,27 @@ def p_strings_kv(p):
 
 
 def p_string_modifers(p):
-    """string_modifiers : string_modifiers string_modifier
-                        | string_modifier"""
+    '''string_modifiers : string_modifiers string_modifier
+                        | string_modifier'''
 
 
 def p_string_modifier(p):
-    """string_modifier : NOCASE
+    '''string_modifier : NOCASE
                        | ASCII
                        | WIDE
-                       | FULLWORD"""
+                       | FULLWORD'''
     parserInterpreter.printDebugMessage('...matched a string modifier: ' + p[1])
     parserInterpreter.addElement(ElementTypes.STRINGS_MODIFIER, p[1])
 
 
 # Condition elements.
 def p_expression(p):
-    """expression : expression term
-                  | term"""
+    '''expression : expression term
+                  | term'''
 
 
 def p_condition(p):
-    """term : ID
+    '''term : ID
             | STRING
             | NUM
             | HEXNUM
@@ -599,7 +590,7 @@ def p_condition(p):
             | UINT32BE
             | STRINGNAME
             | STRINGNAME_ARRAY
-            | STRINGCOUNT"""
+            | STRINGCOUNT'''
 
     parserInterpreter.printDebugMessage('...matched a term: ' + p[1])
     parserInterpreter.addElement(ElementTypes.TERM, p[1])
