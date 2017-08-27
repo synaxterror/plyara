@@ -1,4 +1,5 @@
 import enum
+import logging
 import sys
 
 import ply.lex as lex
@@ -6,6 +7,9 @@ import ply.yacc as yacc
 
 # Appears that Ply needs to read the source, so disable bytecode.
 sys.dont_write_bytecode
+
+# Initialize the logger
+logger = logging.getLogger(__name__)
 
 
 class ElementTypes(enum.Enum):
@@ -25,11 +29,11 @@ class ElementTypes(enum.Enum):
 class ParserInterpreter:
     """Interpret the output of the parser and produce an alternative representation of Yara rules."""
 
-    def __init__(self, debugging=False):
+    def __init__(self, log_level=logging.ERROR):
         """Initialize the parser object."""
         self.reset()
 
-        self.isPrintDebug = debugging
+        logger.setLevel(log_level)
 
     def reset(self):
         """Reset accumulators back to empty."""
@@ -52,8 +56,7 @@ class ParserInterpreter:
             self.readAndResetAccumulators()
 
             self.rules.append(self.currentRule)
-            if self.isPrintDebug:
-                print('--Adding Rule ' + self.currentRule['rule_name'])
+            logger.debug('Adding Rule: {}'.format(self.currentRule['rule_name']))
             self.currentRule = {}
 
         elif elementType == ElementTypes.METADATA_KEY_VALUE:
@@ -120,22 +123,13 @@ class ParserInterpreter:
             self.currentRule['tags'] = self.tagAccumulator
             self.tagAccumulator = []
 
-    def printDebugMessage(self, message):
-        """Print a debug message emitted by the parser if self.isPrintDebug is True."""
-        if self.isPrintDebug:
-            print(message)
-        return True
-
 # Create an instance of this interpreter for use by the parsing functions.
 parserInterpreter = ParserInterpreter()
 
 
-def parseString(inputString, isPrintDebug=False):
+def parseString(inputString):
     """Take a string input expected to consist of Yara rules, and returns a list of dictionaries that represent them."""
-    if isPrintDebug:
-        parserInterpreter.isPrintDebug = True
-
-    parserInterpreter.reset(isPrintDebug=isPrintDebug)
+    parserInterpreter.reset()
 
     # Run the PLY parser, which emits messages to parserInterpreter.
     parser.parse(inputString)
@@ -360,7 +354,7 @@ t_ignore = ' \t'
 
 # Error handling rule
 def t_error(t):
-    raise TypeError('Illegal character ' + t.value[0] + ' at line ' + str(t.lexer.lineno))
+    raise TypeError('Illegal character {} at line {}'.format(t.value[0], str(t.lexer.lineno)))
     t.lexer.skip(1)
 
 precedence = (('right', 'NUM'), ('right', 'ID'), ('right', 'HEXNUM'))
@@ -380,7 +374,7 @@ def p_rules(p):
 def p_rule(p):
     '''rule : imports_and_scopes RULE ID tag_section LBRACE rule_body RBRACE'''
 
-    parserInterpreter.printDebugMessage('matched rule ' + str(p[3]))
+    logger.debug('Matched rule: {}'.format(str(p[3])))
     parserInterpreter.addElement(ElementTypes.RULE_NAME, str(p[3]))
 
 
@@ -407,13 +401,13 @@ def p_includes(p):
 
 def p_import(p):
     'import : IMPORT STRING'
-    parserInterpreter.printDebugMessage('...matched import ' + p[2])
+    logger.debug('Matched import: {}'.format(p[2]))
     parserInterpreter.addElement(ElementTypes.IMPORT, p[2])
 
 
 def p_include(p):
     'include : INCLUDE STRING'
-    parserInterpreter.printDebugMessage('...matched include ' + p[2])
+    logger.debug('Matched include: {}'.format(p[2]))
     parserInterpreter.addElement(ElementTypes.INCLUDE, p[2])
 
 
@@ -434,20 +428,20 @@ def p_tags(p):
 
 def p_tag(p):
     'tag : ID'
-    parserInterpreter.printDebugMessage('matched tag ' + str(p[1]))
+    logger.debug('Matched tag: {}'.format(str(p[1])))
     parserInterpreter.addElement(ElementTypes.TAG, p[1])
 
 
 def p_scope(p):
     '''scope : PRIVATE
              | GLOBAL'''
-    parserInterpreter.printDebugMessage('matched scope identifier ' + str(p[1]))
+    logger.debug('Matched scope identifier: {}'.format(str(p[1])))
     parserInterpreter.addElement(ElementTypes.SCOPE, p[1])
 
 
 def p_rule_body(p):
     'rule_body : sections'
-    parserInterpreter.printDebugMessage('...matched rule body')
+    logger.debug('Matched rule body')
 
 
 def p_rule_sections(p):
@@ -463,7 +457,7 @@ def p_rule_section(p):
 
 def p_meta_section(p):
     'meta_section : SECTIONMETA meta_kvs'
-    parserInterpreter.printDebugMessage('...matched meta section')
+    logger.debug('Matched meta section')
 
 
 def p_strings_section(p):
@@ -478,7 +472,7 @@ def p_condition_section(p):
 def p_meta_kvs(p):
     '''meta_kvs : meta_kvs meta_kv
                 | meta_kv'''
-    parserInterpreter.printDebugMessage('...matched meta kvs')
+    logger.debug('Matched meta kvs')
 
 
 def p_meta_kv(p):
@@ -489,7 +483,7 @@ def p_meta_kv(p):
                | ID EQUALS NUM'''
     key = str(p[1])
     value = str(p[3])
-    parserInterpreter.printDebugMessage('matched meta kv: ' + key + ' equals ' + value)
+    logger.debug('Matched meta kv: {} equals {}'.format(key, value))
     parserInterpreter.addElement(ElementTypes.METADATA_KEY_VALUE, (key, value))
 
 
@@ -497,7 +491,7 @@ def p_meta_kv(p):
 def p_strings_kvs(p):
     '''strings_kvs : strings_kvs strings_kv
                    | strings_kv'''
-    parserInterpreter.printDebugMessage('...matched strings kvs')
+    logger.debug('Matched strings kvs')
 
 
 def p_strings_kv(p):
@@ -509,7 +503,7 @@ def p_strings_kv(p):
 
     key = str(p[1])
     value = str(p[3])
-    parserInterpreter.printDebugMessage('matched strings kv: ' + key + ' equals ' + value)
+    logger.debug('Matched strings kv: {} equals {}'.format(key, value))
     parserInterpreter.addElement(ElementTypes.STRINGS_KEY_VALUE, (key, value))
 
 
@@ -523,7 +517,7 @@ def p_string_modifier(p):
                        | ASCII
                        | WIDE
                        | FULLWORD'''
-    parserInterpreter.printDebugMessage('...matched a string modifier: ' + p[1])
+    logger.debug('Matched a string modifier: {}'.format(p[1]))
     parserInterpreter.addElement(ElementTypes.STRINGS_MODIFIER, p[1])
 
 
@@ -592,12 +586,12 @@ def p_condition(p):
             | STRINGNAME_ARRAY
             | STRINGCOUNT'''
 
-    parserInterpreter.printDebugMessage('...matched a term: ' + p[1])
+    logger.debug('Matched a term: {}'.format(p[1]))
     parserInterpreter.addElement(ElementTypes.TERM, p[1])
 
 
 # Error rule for syntax errors
 def p_error(p):
-    raise TypeError('unknown text at %r ; token of type %r' % (p.value, p.type))
+    raise TypeError('Unknown text at {} ; token of type {}'.format(p.value, p.type))
 
 parser = yacc.yacc(debug=False)
