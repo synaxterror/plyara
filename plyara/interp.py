@@ -39,89 +39,89 @@ class ParserInterpreter:
         """Reset accumulators back to empty."""
         self.rules = list()
 
-        self.currentRule = dict()
+        self.current_rule = dict()
 
-        self.stringModifiersAccumulator = list()
-        self.importsAccumulator = list()
-        self.includesAccumulator = list()
-        self.termAccumulator = list()
-        self.scopeAccumulator = list()
-        self.tagAccumulator = list()
+        self.string_modifiers = list()
+        self.imports = list()
+        self.includes = list()
+        self.terms = list()
+        self.scopes = list()
+        self.tags = list()
 
     def addElement(self, elementType, elementValue):
         """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
         if elementType == ElementTypes.RULE_NAME:
-            self.currentRule['rule_name'] = elementValue
+            self.current_rule['rule_name'] = elementValue
 
             self.readAndResetAccumulators()
 
-            self.rules.append(self.currentRule)
-            logger.debug('Adding Rule: {}'.format(self.currentRule['rule_name']))
-            self.currentRule = dict()
+            self.rules.append(self.current_rule)
+            logger.debug('Adding Rule: {}'.format(self.current_rule['rule_name']))
+            self.current_rule = dict()
 
         elif elementType == ElementTypes.METADATA_KEY_VALUE:
-            if 'metadata' not in self.currentRule:
-                self.currentRule['metadata'] = {elementValue[0]: elementValue[1]}
+            if 'metadata' not in self.current_rule:
+                self.current_rule['metadata'] = {elementValue[0]: elementValue[1]}
             else:
-                if elementValue[0] not in self.currentRule['metadata']:
-                    self.currentRule['metadata'][elementValue[0]] = elementValue[1]
+                if elementValue[0] not in self.current_rule['metadata']:
+                    self.current_rule['metadata'][elementValue[0]] = elementValue[1]
                 else:
-                    if isinstance(self.currentRule['metadata'][elementValue[0]], list):
-                        self.currentRule['metadata'][elementValue[0]].append(elementValue[1])
+                    if isinstance(self.current_rule['metadata'][elementValue[0]], list):
+                        self.current_rule['metadata'][elementValue[0]].append(elementValue[1])
                     else:
-                        self.currentRule['metadata'][elementValue[0]] = [self.currentRule['metadata'][elementValue[0]], elementValue[1]]
+                        self.current_rule['metadata'][elementValue[0]] = [self.current_rule['metadata'][elementValue[0]], elementValue[1]]
 
         elif elementType == ElementTypes.STRINGS_KEY_VALUE:
             string_dict = {'name': elementValue[0], 'value': elementValue[1]}
 
-            if len(self.stringModifiersAccumulator) > 0:
-                string_dict['modifiers'] = self.stringModifiersAccumulator
-                self.stringModifiersAccumulator = list()
+            if len(self.string_modifiers) > 0:
+                string_dict['modifiers'] = self.string_modifiers
+                self.string_modifiers = list()
 
-            if 'strings' not in self.currentRule:
-                self.currentRule['strings'] = [string_dict]
+            if 'strings' not in self.current_rule:
+                self.current_rule['strings'] = [string_dict]
             else:
-                self.currentRule['strings'].append(string_dict)
+                self.current_rule['strings'].append(string_dict)
 
         elif elementType == ElementTypes.STRINGS_MODIFIER:
-            self.stringModifiersAccumulator.append(elementValue)
+            self.string_modifiers.append(elementValue)
 
         elif elementType == ElementTypes.IMPORT:
-            self.importsAccumulator.append(elementValue)
+            self.imports.append(elementValue)
 
         elif elementType == ElementTypes.INCLUDE:
-            self.includesAccumulator.append(elementValue)
+            self.includes.append(elementValue)
 
         elif elementType == ElementTypes.TERM:
-            self.termAccumulator.append(elementValue)
+            self.terms.append(elementValue)
 
         elif elementType == ElementTypes.SCOPE:
-            self.scopeAccumulator.append(elementValue)
+            self.scopes.append(elementValue)
 
         elif elementType == ElementTypes.TAG:
-            self.tagAccumulator.append(elementValue)
+            self.tags.append(elementValue)
 
     def readAndResetAccumulators(self):
         """Add accumulated elements to the current rule and resets the accumulators."""
-        if len(self.importsAccumulator) > 0:
-            self.currentRule['imports'] = self.importsAccumulator
-            self.importsAccumulator = list()
+        if len(self.imports) > 0:
+            self.current_rule['imports'] = self.imports
+            self.imports = list()
 
-        if len(self.includesAccumulator) > 0:
-            self.currentRule['includes'] = self.includesAccumulator
-            self.includesAccumulator = list()
+        if len(self.includes) > 0:
+            self.current_rule['includes'] = self.includes
+            self.includes = list()
 
-        if len(self.termAccumulator) > 0:
-            self.currentRule['condition_terms'] = self.termAccumulator
-            self.termAccumulator = list()
+        if len(self.terms) > 0:
+            self.current_rule['condition_terms'] = self.terms
+            self.terms = list()
 
-        if len(self.scopeAccumulator) > 0:
-            self.currentRule['scopes'] = self.scopeAccumulator
-            self.scopeAccumulator = list()
+        if len(self.scopes) > 0:
+            self.current_rule['scopes'] = self.scopes
+            self.scopes = list()
 
-        if len(self.tagAccumulator) > 0:
-            self.currentRule['tags'] = self.tagAccumulator
-            self.tagAccumulator = list()
+        if len(self.tags) > 0:
+            self.current_rule['tags'] = self.tags
+            self.tags = list()
 
 # Create an instance of this interpreter for use by the parsing functions.
 parserInterpreter = ParserInterpreter()
@@ -345,7 +345,6 @@ def t_STRINGCOUNT(t):
     r'\#[^\s]*'
     t.value = t.value
     return t
-
 
 # A string containing ignored characters (spaces and tabs)
 # t_ignore = ' \t\r\n'
