@@ -56,38 +56,38 @@ class ParserInterpreter:
         """Accepts elements from the parser and uses them to construct a representation of the Yara rule."""
 
         if elementType == ElementTypes.RULE_NAME:
-            self.currentRule["rule_name"] = elementValue
+            self.currentRule['rule_name'] = elementValue
 
             self.readAndResetAccumulators()
 
             self.rules.append(self.currentRule)
             if self.isPrintDebug:
-                print("--Adding Rule " + self.currentRule['rule_name'])
+                print('--Adding Rule ' + self.currentRule['rule_name'])
             self.currentRule = {}
 
         elif elementType == ElementTypes.METADATA_KEY_VALUE:
-            if "metadata" not in self.currentRule:
-                self.currentRule["metadata"] = {elementValue[0]: elementValue[1]}
+            if 'metadata' not in self.currentRule:
+                self.currentRule['metadata'] = {elementValue[0]: elementValue[1]}
             else:
-                if elementValue[0] not in self.currentRule["metadata"]:
-                    self.currentRule["metadata"][elementValue[0]] = elementValue[1]
+                if elementValue[0] not in self.currentRule['metadata']:
+                    self.currentRule['metadata'][elementValue[0]] = elementValue[1]
                 else:
-                    if isinstance(self.currentRule["metadata"][elementValue[0]], list):
-                        self.currentRule["metadata"][elementValue[0]].append(elementValue[1])
+                    if isinstance(self.currentRule['metadata'][elementValue[0]], list):
+                        self.currentRule['metadata'][elementValue[0]].append(elementValue[1])
                     else:
-                        self.currentRule["metadata"][elementValue[0]] = [self.currentRule["metadata"][elementValue[0]], elementValue[1]]
+                        self.currentRule['metadata'][elementValue[0]] = [self.currentRule['metadata'][elementValue[0]], elementValue[1]]
 
         elif elementType == ElementTypes.STRINGS_KEY_VALUE:
             string_dict = {'name': elementValue[0], 'value': elementValue[1]}
 
             if len(self.stringModifiersAccumulator) > 0:
-                string_dict["modifiers"] = self.stringModifiersAccumulator
+                string_dict['modifiers'] = self.stringModifiersAccumulator
                 self.stringModifiersAccumulator = []
 
-            if "strings" not in self.currentRule:
-                self.currentRule["strings"] = [string_dict]
+            if 'strings' not in self.currentRule:
+                self.currentRule['strings'] = [string_dict]
             else:
-                self.currentRule["strings"].append(string_dict)
+                self.currentRule['strings'].append(string_dict)
 
         elif elementType == ElementTypes.STRINGS_MODIFIER:
             self.stringModifiersAccumulator.append(elementValue)
@@ -110,23 +110,23 @@ class ParserInterpreter:
     def readAndResetAccumulators(self):
         """Add accumulated elements to the current rule and resets the accumulators."""
         if len(self.importsAccumulator) > 0:
-            self.currentRule["imports"] = self.importsAccumulator
+            self.currentRule['imports'] = self.importsAccumulator
             self.importsAccumulator = []
 
         if len(self.includesAccumulator) > 0:
-            self.currentRule["includes"] = self.includesAccumulator
+            self.currentRule['includes'] = self.includesAccumulator
             self.includesAccumulator = []
 
         if len(self.termAccumulator) > 0:
-            self.currentRule["condition_terms"] = self.termAccumulator
+            self.currentRule['condition_terms'] = self.termAccumulator
             self.termAccumulator = []
 
         if len(self.scopeAccumulator) > 0:
-            self.currentRule["scopes"] = self.scopeAccumulator
+            self.currentRule['scopes'] = self.scopeAccumulator
             self.scopeAccumulator = []
 
         if len(self.tagAccumulator) > 0:
-            self.currentRule["tags"] = self.tagAccumulator
+            self.currentRule['tags'] = self.tagAccumulator
             self.tagAccumulator = []
 
     def printDebugMessage(self, message):
@@ -369,7 +369,7 @@ t_ignore = ' \t'
 
 # Error handling rule
 def t_error(t):
-    raise TypeError("Illegal character " + t.value[0] + " at line " + str(t.lexer.lineno))
+    raise TypeError('Illegal character ' + t.value[0] + ' at line ' + str(t.lexer.lineno))
     t.lexer.skip(1)
 
 precedence = (('right', 'NUM'), ('right', 'ID'), ('right', 'HEXNUM'))
@@ -498,7 +498,7 @@ def p_meta_kv(p):
                | ID EQUALS NUM"""
     key = str(p[1])
     value = str(p[3])
-    parserInterpreter.printDebugMessage('matched meta kv: ' + key + " equals " + value)
+    parserInterpreter.printDebugMessage('matched meta kv: ' + key + ' equals ' + value)
     parserInterpreter.addElement(ElementTypes.METADATA_KEY_VALUE, (key, value))
 
 
@@ -518,7 +518,7 @@ def p_strings_kv(p):
 
     key = str(p[1])
     value = str(p[3])
-    parserInterpreter.printDebugMessage('matched strings kv: ' + key + " equals " + value)
+    parserInterpreter.printDebugMessage('matched strings kv: ' + key + ' equals ' + value)
     parserInterpreter.addElement(ElementTypes.STRINGS_KEY_VALUE, (key, value))
 
 
@@ -607,6 +607,6 @@ def p_condition(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    raise TypeError("unknown text at %r ; token of type %r" % (p.value, p.type))
+    raise TypeError('unknown text at %r ; token of type %r' % (p.value, p.type))
 
 parser = yacc.yacc(debug=False)
