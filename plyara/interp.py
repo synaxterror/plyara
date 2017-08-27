@@ -37,16 +37,16 @@ class ParserInterpreter:
 
     def reset(self):
         """Reset accumulators back to empty."""
-        self.rules = []
+        self.rules = list()
 
-        self.currentRule = {}
+        self.currentRule = dict()
 
-        self.stringModifiersAccumulator = []
-        self.importsAccumulator = []
-        self.includesAccumulator = []
-        self.termAccumulator = []
-        self.scopeAccumulator = []
-        self.tagAccumulator = []
+        self.stringModifiersAccumulator = list()
+        self.importsAccumulator = list()
+        self.includesAccumulator = list()
+        self.termAccumulator = list()
+        self.scopeAccumulator = list()
+        self.tagAccumulator = list()
 
     def addElement(self, elementType, elementValue):
         """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
@@ -57,7 +57,7 @@ class ParserInterpreter:
 
             self.rules.append(self.currentRule)
             logger.debug('Adding Rule: {}'.format(self.currentRule['rule_name']))
-            self.currentRule = {}
+            self.currentRule = dict()
 
         elif elementType == ElementTypes.METADATA_KEY_VALUE:
             if 'metadata' not in self.currentRule:
@@ -76,7 +76,7 @@ class ParserInterpreter:
 
             if len(self.stringModifiersAccumulator) > 0:
                 string_dict['modifiers'] = self.stringModifiersAccumulator
-                self.stringModifiersAccumulator = []
+                self.stringModifiersAccumulator = list()
 
             if 'strings' not in self.currentRule:
                 self.currentRule['strings'] = [string_dict]
@@ -105,23 +105,23 @@ class ParserInterpreter:
         """Add accumulated elements to the current rule and resets the accumulators."""
         if len(self.importsAccumulator) > 0:
             self.currentRule['imports'] = self.importsAccumulator
-            self.importsAccumulator = []
+            self.importsAccumulator = list()
 
         if len(self.includesAccumulator) > 0:
             self.currentRule['includes'] = self.includesAccumulator
-            self.includesAccumulator = []
+            self.includesAccumulator = list()
 
         if len(self.termAccumulator) > 0:
             self.currentRule['condition_terms'] = self.termAccumulator
-            self.termAccumulator = []
+            self.termAccumulator = list()
 
         if len(self.scopeAccumulator) > 0:
             self.currentRule['scopes'] = self.scopeAccumulator
-            self.scopeAccumulator = []
+            self.scopeAccumulator = list()
 
         if len(self.tagAccumulator) > 0:
             self.currentRule['tags'] = self.tagAccumulator
-            self.tagAccumulator = []
+            self.tagAccumulator = list()
 
 # Create an instance of this interpreter for use by the parsing functions.
 parserInterpreter = ParserInterpreter()
