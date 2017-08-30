@@ -99,23 +99,23 @@ class ParserInterpreter:
 
     def readAndResetAccumulators(self):
         """Add accumulated elements to the current rule and resets the accumulators."""
-        if len(self.imports) > 0:
+        if any(self.imports):
             self.current_rule['imports'] = self.imports
             self.imports = list()
 
-        if len(self.includes) > 0:
+        if any(self.includes):
             self.current_rule['includes'] = self.includes
             self.includes = list()
 
-        if len(self.terms) > 0:
+        if any(self.terms):
             self.current_rule['condition_terms'] = self.terms
             self.terms = list()
 
-        if len(self.scopes) > 0:
+        if any(self.scopes):
             self.current_rule['scopes'] = self.scopes
             self.scopes = list()
 
-        if len(self.tags) > 0:
+        if any(self.tags):
             self.current_rule['tags'] = self.tags
             self.tags = list()
 
