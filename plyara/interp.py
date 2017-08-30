@@ -54,32 +54,32 @@ class ParserInterpreter:
         ch.setLevel(logging.DEBUG)
         logger.addHandler(ch)
 
-    def addElement(self, elementType, elementValue):
+    def add_element(self, element_type, element_value):
         """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
-        if elementType == ElementTypes.RULE_NAME:
-            self.current_rule['rule_name'] = elementValue
+        if element_type == ElementTypes.RULE_NAME:
+            self.current_rule['rule_name'] = element_value
 
-            self.readAndResetAccumulators()
+            self._flush_accumulators()
 
             self.rules.append(self.current_rule)
             logger.debug('Adding Rule: {}'.format(self.current_rule['rule_name']))
             self.current_rule = dict()
 
-        elif elementType == ElementTypes.METADATA_KEY_VALUE:
+        elif element_type == ElementTypes.METADATA_KEY_VALUE:
             if 'metadata' not in self.current_rule:
-                self.current_rule['metadata'] = {elementValue.key: elementValue.value}
+                self.current_rule['metadata'] = {element_value.key: element_value.value}
             else:
-                if elementValue.key not in self.current_rule['metadata']:
-                    self.current_rule['metadata'][elementValue.key] = elementValue.value
+                if element_value.key not in self.current_rule['metadata']:
+                    self.current_rule['metadata'][element_value.key] = element_value.value
                 else:
-                    if isinstance(self.current_rule['metadata'][elementValue.key], list):
-                        self.current_rule['metadata'][elementValue.key].append(elementValue.value)
+                    if isinstance(self.current_rule['metadata'][element_value.key], list):
+                        self.current_rule['metadata'][element_value.key].append(element_value.value)
                     else:
-                        kv_list = [self.current_rule['metadata'][elementValue.key], elementValue.value]
-                        self.current_rule['metadata'][elementValue.key] = kv_list
+                        kv_list = [self.current_rule['metadata'][element_value.key], element_value.value]
+                        self.current_rule['metadata'][element_value.key] = kv_list
 
-        elif elementType == ElementTypes.STRINGS_KEY_VALUE:
-            string_dict = {'name': elementValue.key, 'value': elementValue.value}
+        elif element_type == ElementTypes.STRINGS_KEY_VALUE:
+            string_dict = {'name': element_value.key, 'value': element_value.value}
 
             if any(self.string_modifiers):
                 string_dict['modifiers'] = self.string_modifiers
@@ -90,25 +90,25 @@ class ParserInterpreter:
             else:
                 self.current_rule['strings'].append(string_dict)
 
-        elif elementType == ElementTypes.STRINGS_MODIFIER:
-            self.string_modifiers.append(elementValue)
+        elif element_type == ElementTypes.STRINGS_MODIFIER:
+            self.string_modifiers.append(element_value)
 
-        elif elementType == ElementTypes.IMPORT:
-            self.imports.append(elementValue)
+        elif element_type == ElementTypes.IMPORT:
+            self.imports.append(element_value)
 
-        elif elementType == ElementTypes.INCLUDE:
-            self.includes.append(elementValue)
+        elif element_type == ElementTypes.INCLUDE:
+            self.includes.append(element_value)
 
-        elif elementType == ElementTypes.TERM:
-            self.terms.append(elementValue)
+        elif element_type == ElementTypes.TERM:
+            self.terms.append(element_value)
 
-        elif elementType == ElementTypes.SCOPE:
-            self.scopes.append(elementValue)
+        elif element_type == ElementTypes.SCOPE:
+            self.scopes.append(element_value)
 
-        elif elementType == ElementTypes.TAG:
-            self.tags.append(elementValue)
+        elif element_type == ElementTypes.TAG:
+            self.tags.append(element_value)
 
-    def readAndResetAccumulators(self):
+    def _flush_accumulators(self):
         """Add accumulated elements to the current rule and resets the accumulators."""
         if any(self.imports):
             self.current_rule['imports'] = self.imports
@@ -131,18 +131,18 @@ class ParserInterpreter:
             self.tags = list()
 
 # Create an instance of this interpreter for use by the parsing functions.
-parserInterpreter = ParserInterpreter()
+parser_interpreter = ParserInterpreter()
 
 
-def parseString(inputString, console_logging=False):
+def parse_string(input_string, console_logging=False):
     """Take a string input expected to consist of Yara rules, and returns a list of dictionaries that represent them."""
     if console_logging:
-        parserInterpreter.set_logging()
+        parser_interpreter.set_logging()
 
-    # Run the PLY parser, which emits messages to parserInterpreter.
-    parser.parse(inputString)
+    # Run the PLY parser, which emits messages to parser_interpreter.
+    parser.parse(input_string)
 
-    return parserInterpreter.rules
+    return parser_interpreter.rules
 
 
 ########################################################################################################################
@@ -382,7 +382,7 @@ def p_rule(p):
     '''rule : imports_and_scopes RULE ID tag_section LBRACE rule_body RBRACE'''
 
     logger.debug('Matched rule: {}'.format(str(p[3])))
-    parserInterpreter.addElement(ElementTypes.RULE_NAME, str(p[3]))
+    parser_interpreter.add_element(ElementTypes.RULE_NAME, str(p[3]))
 
 
 def p_imports_and_scopes(p):
@@ -409,13 +409,13 @@ def p_includes(p):
 def p_import(p):
     'import : IMPORT STRING'
     logger.debug('Matched import: {}'.format(p[2]))
-    parserInterpreter.addElement(ElementTypes.IMPORT, p[2])
+    parser_interpreter.add_element(ElementTypes.IMPORT, p[2])
 
 
 def p_include(p):
     'include : INCLUDE STRING'
     logger.debug('Matched include: {}'.format(p[2]))
-    parserInterpreter.addElement(ElementTypes.INCLUDE, p[2])
+    parser_interpreter.add_element(ElementTypes.INCLUDE, p[2])
 
 
 def p_scopes(p):
@@ -436,14 +436,14 @@ def p_tags(p):
 def p_tag(p):
     'tag : ID'
     logger.debug('Matched tag: {}'.format(str(p[1])))
-    parserInterpreter.addElement(ElementTypes.TAG, p[1])
+    parser_interpreter.add_element(ElementTypes.TAG, p[1])
 
 
 def p_scope(p):
     '''scope : PRIVATE
              | GLOBAL'''
     logger.debug('Matched scope identifier: {}'.format(str(p[1])))
-    parserInterpreter.addElement(ElementTypes.SCOPE, p[1])
+    parser_interpreter.add_element(ElementTypes.SCOPE, p[1])
 
 
 def p_rule_body(p):
@@ -491,7 +491,7 @@ def p_meta_kv(p):
     key = str(p[1])
     value = str(p[3])
     logger.debug('Matched meta kv: {} equals {}'.format(key, value))
-    parserInterpreter.addElement(ElementTypes.METADATA_KEY_VALUE, MetaElement(key, value, ))
+    parser_interpreter.add_element(ElementTypes.METADATA_KEY_VALUE, MetaElement(key, value, ))
 
 
 # Strings elements.
@@ -511,7 +511,7 @@ def p_strings_kv(p):
     key = str(p[1])
     value = str(p[3])
     logger.debug('Matched strings kv: {} equals {}'.format(key, value))
-    parserInterpreter.addElement(ElementTypes.STRINGS_KEY_VALUE, StringsElement(key, value, ))
+    parser_interpreter.add_element(ElementTypes.STRINGS_KEY_VALUE, StringsElement(key, value, ))
 
 
 def p_string_modifers(p):
@@ -525,7 +525,7 @@ def p_string_modifier(p):
                        | WIDE
                        | FULLWORD'''
     logger.debug('Matched a string modifier: {}'.format(p[1]))
-    parserInterpreter.addElement(ElementTypes.STRINGS_MODIFIER, p[1])
+    parser_interpreter.add_element(ElementTypes.STRINGS_MODIFIER, p[1])
 
 
 # Condition elements.
@@ -594,7 +594,7 @@ def p_condition(p):
             | STRINGCOUNT'''
 
     logger.debug('Matched a term: {}'.format(p[1]))
-    parserInterpreter.addElement(ElementTypes.TERM, p[1])
+    parser_interpreter.add_element(ElementTypes.TERM, p[1])
 
 
 # Error rule for syntax errors

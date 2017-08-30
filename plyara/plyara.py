@@ -4,8 +4,8 @@ import json
 import interp
 
 
-def plyara_parser(inputString, console_logging=False):
-    return interp.parseString(inputString, console_logging=console_logging)
+def plyara_parser(input_string, console_logging=False):
+    return interp.parse_string(input_string, console_logging=console_logging)
 
 
 def main():
@@ -16,9 +16,9 @@ def main():
     args, _ = parser.parse_known_args()
 
     with open(args.file, 'r') as fh:
-        inputString = fh.read()
+        input_string = fh.read()
 
-    rules = plyara_parser(inputString, console_logging=args.log)
+    rules = plyara_parser(input_string, console_logging=args.log)
     print(json.dumps(rules, sort_keys=True, indent=4))
 
 
