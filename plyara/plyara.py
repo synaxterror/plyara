@@ -1,4 +1,5 @@
 import argparse
+import json
 
 import interp
 
@@ -22,7 +23,7 @@ def main():
     args, _ = parser.parse_known_args()
 
     p = PlyaraParser()
-    print(p.parseFromFile(args.file))
+    print(json.dumps(p.parseFromFile(args.file), sort_keys=True, indent=4))
 
 
 if __name__ == '__main__':
