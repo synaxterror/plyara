@@ -620,7 +620,7 @@ def p_condition(p):
             | STRINGCOUNT
             | REXSTRING'''
 
-    logger.debug('Matched a term: {}'.format(p[1]))
+    logger.debug('Matched a condition term: {}'.format(p[1]))
     parser_interpreter.add_element(ElementTypes.TERM, p[1])
 
 
