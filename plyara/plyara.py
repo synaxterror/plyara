@@ -4,19 +4,8 @@ import json
 import interp
 
 
-class PlyaraParser:
-
-    def __init__(self, console_logging=False):
-        self.console_logging = console_logging
-
-    def parseString(self, inputString):
-        return interp.parseString(inputString, console_logging=self.console_logging)
-
-    def parseFromFile(self, filePath):
-        with open(filePath, 'r') as fh:
-            inputString = fh.read()
-
-        return self.parseString(inputString)
+def plyara_parser(inputString, console_logging=False):
+    return interp.parseString(inputString, console_logging=console_logging)
 
 
 def main():
@@ -26,8 +15,11 @@ def main():
     parser.add_argument('--log', help='Enable debug logging to the console.', action='store_true')
     args, _ = parser.parse_known_args()
 
-    p = PlyaraParser(console_logging=args.log)
-    print(json.dumps(p.parseFromFile(args.file), sort_keys=True, indent=4))
+    with open(args.file, 'r') as fh:
+        inputString = fh.read()
+
+    rules = plyara_parser(inputString, console_logging=args.log)
+    print(json.dumps(rules, sort_keys=True, indent=4))
 
 
 if __name__ == '__main__':
