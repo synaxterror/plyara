@@ -31,12 +31,6 @@ class ParserInterpreter:
 
     def __init__(self, log_level=logging.ERROR):
         """Initialize the parser object."""
-        self.reset()
-
-        logger.setLevel(log_level)
-
-    def reset(self):
-        """Reset accumulators back to empty."""
         self.rules = list()
 
         self.current_rule = dict()
@@ -47,6 +41,8 @@ class ParserInterpreter:
         self.terms = list()
         self.scopes = list()
         self.tags = list()
+
+        logger.setLevel(log_level)
 
     def addElement(self, elementType, elementValue):
         """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
@@ -129,8 +125,6 @@ parserInterpreter = ParserInterpreter()
 
 def parseString(inputString):
     """Take a string input expected to consist of Yara rules, and returns a list of dictionaries that represent them."""
-    parserInterpreter.reset()
-
     # Run the PLY parser, which emits messages to parserInterpreter.
     parser.parse(inputString)
 
