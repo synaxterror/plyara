@@ -110,14 +110,6 @@ class ParserInterpreter:
 
     def _flush_accumulators(self):
         """Add accumulated elements to the current rule and resets the accumulators."""
-        if any(self.imports):
-            self.current_rule['imports'] = self.imports
-            self.imports = list()
-
-        if any(self.includes):
-            self.current_rule['includes'] = self.includes
-            self.includes = list()
-
         if any(self.terms):
             self.current_rule['condition_terms'] = self.terms
             self.terms = list()
@@ -130,6 +122,14 @@ class ParserInterpreter:
             self.current_rule['tags'] = self.tags
             self.tags = list()
 
+    def finalize_rules(self):
+        """Add total accumulated imports and includes to all rules."""
+        for rule in self.rules:
+            if any(self.imports):
+                rule['imports'] = self.imports
+            if any(self.includes):
+                rule['includes'] = self.includes
+
 # Create an instance of this interpreter for use by the parsing functions.
 parser_interpreter = ParserInterpreter()
 
@@ -141,6 +141,8 @@ def parse_string(input_string, console_logging=False):
 
     # Run the PLY parser, which emits messages to parser_interpreter.
     parser.parse(input_string)
+
+    parser_interpreter.finalize_rules()
 
     return parser_interpreter.rules
 
