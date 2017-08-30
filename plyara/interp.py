@@ -329,7 +329,7 @@ def t_BYTESTRING(t):
 
 
 def t_REXSTRING(t):
-    r'\/.+\/(?=\s|$)'
+    r'\/.+(\/[ismx]*)(?=\s|\)|$)'
     t.value = t.value
     return t
 
