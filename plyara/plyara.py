@@ -16,7 +16,7 @@ class PlyaraParser:
         with open(filePath, 'r') as fh:
             inputString = fh.read()
 
-        return(self.parseString(inputString))
+        return self.parseString(inputString)
 
 
 def main():
