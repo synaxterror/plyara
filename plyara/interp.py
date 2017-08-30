@@ -33,7 +33,7 @@ class ElementTypes(enum.Enum):
 class ParserInterpreter:
     """Interpret the output of the parser and produce an alternative representation of Yara rules."""
 
-    def __init__(self, log_level=logging.ERROR):
+    def __init__(self):
         """Initialize the parser object."""
         self.rules = list()
 
@@ -46,7 +46,13 @@ class ParserInterpreter:
         self.scopes = list()
         self.tags = list()
 
-        logger.setLevel(log_level)
+    @staticmethod
+    def set_logging():
+        """Set the console logger."""
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
 
     def addElement(self, elementType, elementValue):
         """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
@@ -128,8 +134,11 @@ class ParserInterpreter:
 parserInterpreter = ParserInterpreter()
 
 
-def parseString(inputString):
+def parseString(inputString, console_logging=False):
     """Take a string input expected to consist of Yara rules, and returns a list of dictionaries that represent them."""
+    if console_logging:
+        parserInterpreter.set_logging()
+
     # Run the PLY parser, which emits messages to parserInterpreter.
     parser.parse(inputString)
 
