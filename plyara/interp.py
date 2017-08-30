@@ -74,7 +74,7 @@ class ParserInterpreter:
         elif elementType == ElementTypes.STRINGS_KEY_VALUE:
             string_dict = {'name': elementValue.key, 'value': elementValue.value}
 
-            if len(self.string_modifiers) > 0:
+            if any(self.string_modifiers):
                 string_dict['modifiers'] = self.string_modifiers
                 self.string_modifiers = list()
 
