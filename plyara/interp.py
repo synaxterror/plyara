@@ -69,7 +69,8 @@ class ParserInterpreter:
                     if isinstance(self.current_rule['metadata'][elementValue.key], list):
                         self.current_rule['metadata'][elementValue.key].append(elementValue.value)
                     else:
-                        self.current_rule['metadata'][elementValue.key] = [self.current_rule['metadata'][elementValue.key], elementValue.value]
+                        kv_list = [self.current_rule['metadata'][elementValue.key], elementValue.value]
+                        self.current_rule['metadata'][elementValue.key] = kv_list
 
         elif elementType == ElementTypes.STRINGS_KEY_VALUE:
             string_dict = {'name': elementValue.key, 'value': elementValue.value}
