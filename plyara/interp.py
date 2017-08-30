@@ -177,6 +177,8 @@ tokens = [
     'LESSTHAN',
     'GREATEREQUAL',
     'LESSEQUAL',
+    'RIGHTBITSHIFT',
+    'LEFTBITSHIFT',
     'XOR',
     'PERIOD',
     'COLON',
@@ -249,6 +251,8 @@ t_GREATERTHAN = r'>'
 t_LESSTHAN = r'<'
 t_GREATEREQUAL = r'>='
 t_LESSEQUAL = r'<='
+t_RIGHTBITSHIFT = r'>>'
+t_LEFTBITSHIFT = r'<<'
 t_XOR  = r'\^'
 t_PERIOD = r'\.'
 t_COLON = r':'
@@ -560,6 +564,8 @@ def p_condition(p):
             | LESSTHAN
             | GREATEREQUAL
             | LESSEQUAL
+            | RIGHTBITSHIFT
+            | LEFTBITSHIFT
             | XOR
             | PERIOD
             | COLON
