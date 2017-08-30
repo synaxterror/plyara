@@ -179,6 +179,7 @@ tokens = [
     'LESSEQUAL',
     'RIGHTBITSHIFT',
     'LEFTBITSHIFT',
+    'MODULO',
     'XOR',
     'PERIOD',
     'COLON',
@@ -253,6 +254,7 @@ t_GREATEREQUAL = r'>='
 t_LESSEQUAL = r'<='
 t_RIGHTBITSHIFT = r'>>'
 t_LEFTBITSHIFT = r'<<'
+t_MODULO = r'%'
 t_XOR = r'\^'
 t_PERIOD = r'\.'
 t_COLON = r':'
@@ -565,6 +567,7 @@ def p_condition(p):
             | LESSEQUAL
             | RIGHTBITSHIFT
             | LEFTBITSHIFT
+            | MODULO
             | XOR
             | PERIOD
             | COLON
