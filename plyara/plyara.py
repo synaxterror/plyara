@@ -13,9 +13,9 @@ class PlyaraParser:
         return interp.parseString(inputString, console_logging=self.console_logging)
 
     def parseFromFile(self, filePath):
+        with open(filePath, 'r') as fh:
+            inputString = fh.read()
 
-        f = open(filePath, 'r')
-        inputString = f.read()
         return(self.parseString(inputString))
 
 
