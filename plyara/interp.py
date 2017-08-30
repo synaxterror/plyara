@@ -604,7 +604,8 @@ def p_condition(p):
             | UINT32BE
             | STRINGNAME
             | STRINGNAME_ARRAY
-            | STRINGCOUNT'''
+            | STRINGCOUNT
+            | REXSTRING'''
 
     logger.debug('Matched a term: {}'.format(p[1]))
     parser_interpreter.add_element(ElementTypes.TERM, p[1])
