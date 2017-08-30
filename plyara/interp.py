@@ -323,7 +323,20 @@ def t_STRING(t):
 
 
 def t_BYTESTRING(t):
-    r'\{[\|\(\)\[\]\-\?a-fA-F0-9\s]+\}'
+    r'\{\s*(([a-fA-F0-9?]{2}|\[\d+-\d+\]|\(([a-fA-F0-9?]{2}\s*\|?\s*)+\)|\/\/[^\n]+)\s*)+\s*\}'
+    """
+      Regex above broken down broken down
+      remove all literal spaces below, just there to visualize and piece together.
+
+      \{\s*                                        // start
+        (?:                                        // open for combinations of...
+          (?:[a-fA-F0-9?]{2}                    |  // byte pair
+             \[\d+-\d+\]                        |  // jump
+             \((?:[a-fA-F0-9?]{2}\s*\|?\s*)+\)  |  // group
+             \/\/[^\n]+                            // comment
+        )\s*)+                                     // close combinations
+      \s*\}                                        // close bytestring
+    """
     t.value = t.value
     return t
 
