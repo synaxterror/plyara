@@ -628,4 +628,4 @@ def p_condition(p):
 def p_error(p):
     raise TypeError('Unknown text at {} ; token of type {}'.format(p.value, p.type))
 
-parser = yacc.yacc(debug=False)
+parser = yacc.yacc(debug=False, outputdir='/tmp')

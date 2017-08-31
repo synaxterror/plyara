@@ -1,7 +1,7 @@
 import argparse
 import json
 
-import interp
+from plyara import interp
 
 
 def plyara_parser(input_string, console_logging=False):
