@@ -511,7 +511,7 @@ def p_meta_kv(p):
                | ID EQUALS FALSE
                | ID EQUALS NUM'''
     key = str(p[1])
-    value = str(p[3])
+    value = str(p[3]).strip('"')
     logger.debug('Matched meta kv: {} equals {}'.format(key, value))
     parser_interpreter.add_element(ElementTypes.METADATA_KEY_VALUE, MetaElement(key, value, ))
 
