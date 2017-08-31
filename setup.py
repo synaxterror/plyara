@@ -50,7 +50,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'plyara=plyara:main',
+            'plyara=plyara.plyara:main',
         ],
     },
 )
