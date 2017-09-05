@@ -130,6 +130,11 @@ class ParserInterpreter:
             if any(self.includes):
                 rule['includes'] = self.includes
 
+        rules = self.rules
+        self.rules = list()
+
+        return rules
+
 # Create an instance of this interpreter for use by the parsing functions.
 parser_interpreter = ParserInterpreter()
 
@@ -142,9 +147,9 @@ def parse_string(input_string, console_logging=False):
     # Run the PLY parser, which emits messages to parser_interpreter.
     parser.parse(input_string)
 
-    parser_interpreter.finalize_rules()
+    rules = parser_interpreter.finalize_rules()
 
-    return parser_interpreter.rules
+    return rules
 
 
 ########################################################################################################################
