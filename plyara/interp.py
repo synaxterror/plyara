@@ -57,7 +57,10 @@ class ParserInterpreter:
     def add_element(self, element_type, element_value):
         """Accept elements from the parser and uses them to construct a representation of the Yara rule."""
         if element_type == ElementTypes.RULE_NAME:
-            self.current_rule['rule_name'] = element_value
+            rule_name, start_line, stop_line = element_value
+            self.current_rule['rule_name'] = rule_name
+            self.current_rule['start_line'] = start_line
+            self.current_rule['stop_line'] = stop_line
 
             self._flush_accumulators()
 
@@ -409,7 +412,9 @@ def p_rule(p):
     '''rule : imports_and_scopes RULE ID tag_section LBRACE rule_body RBRACE'''
 
     logger.debug('Matched rule: {}'.format(str(p[3])))
-    parser_interpreter.add_element(ElementTypes.RULE_NAME, str(p[3]))
+    logger.debug('Rule start: {}, Rule stop: {}'.format(p.lineno(2), p.lineno(7)))
+    element_value = (str(p[3]), int(p.lineno(2)), int(p.lineno(7)), )
+    parser_interpreter.add_element(ElementTypes.RULE_NAME, element_value)
 
 
 def p_imports_and_scopes(p):
