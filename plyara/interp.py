@@ -1,4 +1,3 @@
-import collections
 import enum
 import logging
 import sys
@@ -11,9 +10,6 @@ sys.dont_write_bytecode
 
 # Initialize the logger
 logger = logging.getLogger(__name__)
-
-MetaElement = collections.namedtuple('MetaElement', ['key', 'value'])
-StringsElement = collections.namedtuple('StringsElement', ['key', 'value'])
 
 
 class ElementTypes(enum.Enum):
@@ -69,20 +65,24 @@ class ParserInterpreter:
             self.current_rule = dict()
 
         elif element_type == ElementTypes.METADATA_KEY_VALUE:
+            key, value = element_value
+
             if 'metadata' not in self.current_rule:
-                self.current_rule['metadata'] = {element_value.key: element_value.value}
+                self.current_rule['metadata'] = {key: value}
             else:
                 if element_value.key not in self.current_rule['metadata']:
-                    self.current_rule['metadata'][element_value.key] = element_value.value
+                    self.current_rule['metadata'][key] = value
                 else:
-                    if isinstance(self.current_rule['metadata'][element_value.key], list):
-                        self.current_rule['metadata'][element_value.key].append(element_value.value)
+                    if isinstance(self.current_rule['metadata'][key], list):
+                        self.current_rule['metadata'][key].append(value)
                     else:
-                        kv_list = [self.current_rule['metadata'][element_value.key], element_value.value]
-                        self.current_rule['metadata'][element_value.key] = kv_list
+                        kv_list = [self.current_rule['metadata'][key], value]
+                        self.current_rule['metadata'][key] = kv_list
 
         elif element_type == ElementTypes.STRINGS_KEY_VALUE:
-            string_dict = {'name': element_value.key, 'value': element_value.value}
+            key, value = element_value
+
+            string_dict = {'name': key, 'value': value}
 
             if any(self.string_modifiers):
                 string_dict['modifiers'] = self.string_modifiers
@@ -524,7 +524,7 @@ def p_meta_kv(p):
     key = str(p[1])
     value = str(p[3]).strip('"')
     logger.debug('Matched meta kv: {} equals {}'.format(key, value))
-    parser_interpreter.add_element(ElementTypes.METADATA_KEY_VALUE, MetaElement(key, value, ))
+    parser_interpreter.add_element(ElementTypes.METADATA_KEY_VALUE, (key, value, ))
 
 
 # Strings elements.
@@ -544,7 +544,7 @@ def p_strings_kv(p):
     key = str(p[1])
     value = str(p[3])
     logger.debug('Matched strings kv: {} equals {}'.format(key, value))
-    parser_interpreter.add_element(ElementTypes.STRINGS_KEY_VALUE, StringsElement(key, value, ))
+    parser_interpreter.add_element(ElementTypes.STRINGS_KEY_VALUE, (key, value, ))
 
 
 def p_string_modifers(p):
