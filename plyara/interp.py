@@ -147,6 +147,9 @@ def parse_string(input_string, console_logging=False):
     if console_logging:
         parser_interpreter.set_logging()
 
+    # Instantiate the lexer
+    lexer = lex.lex(debug=False)
+
     # Run the PLY parser, which emits messages to parser_interpreter.
     parser.parse(input_string)
 
@@ -395,8 +398,6 @@ def t_error(t):
     t.lexer.skip(1)
 
 precedence = (('right', 'NUM'), ('right', 'ID'), ('right', 'HEXNUM'))
-
-lexer = lex.lex(debug=False)
 
 ########################################################################################################################
 # PARSER
