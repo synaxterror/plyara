@@ -260,6 +260,13 @@ class Plyara(Parser):
     t_AMPERSAND = r'&'
     t_DOTDOT = r'\.\.'
 
+    def t_NEWLINE(self, t):
+        # r'\n+'
+        r'(\n|\r\n)+'
+        t.lexer.lineno += len(t.value)
+        t.value = t.value
+        pass
+
     def t_COMMENT(self, t):
         r'(//.*)(?=\n)'
         pass
@@ -267,18 +274,11 @@ class Plyara(Parser):
     # http://comments.gmane.org/gmane.comp.python.ply/134
     def t_MCOMMENT(self, t):
         # r'/\*(.|\n)*?\*/'
-        r'/\*(.|\n|\r|\r\n)*?\*/'
+        r'/\*(.|\n|\r\n)*?\*/'
         if '\r\n' in t.value:
-            t.lineno += t.value.count('\r\n')
+            t.lexer.lineno += t.value.count('\r\n')
         else:
-            t.lineno += t.value.count('\n')
-        pass
-
-    def t_NEWLINE(self, t):
-        # r'\n+'
-        r'(\n|\r|\r\n)+'
-        t.lexer.lineno += len(t.value)
-        t.value = t.value
+            t.lexer.lineno += t.value.count('\n')
         pass
 
     def t_HEXNUM(self, t):
